@@ -27,8 +27,8 @@ object DeltaStreaming {
     spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", secretKey)
     spark.sparkContext.hadoopConfiguration.set("fs.s3a.endpoint", s3Url)
 
-    val personTablePath = "s3a://spark-tutorial/person-events"
-    val checkPointLocation = "s3a://spark-tutorial/person-events-checkpoint"
+    val personTablePath = "s3a://spark-delta/person-events"
+    val checkPointLocation = "s3a://spark-delta/person-events-checkpoint"
 
 
     val df = spark
@@ -42,12 +42,12 @@ object DeltaStreaming {
 
 
 
-    val query = ds.writeStream
+    val query = ds.writeStream.format("parquet")
       .option("path",  personTablePath)
       .outputMode("append")
       .option("truncate", false)
       .option("checkpointLocation", checkPointLocation)
-      .trigger(Trigger.ProcessingTime(30.seconds))
+      .trigger(Trigger.ProcessingTime(10.seconds))
       .start()
 
 
